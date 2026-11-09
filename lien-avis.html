@@ -1,0 +1,310 @@
+<title>Lien d'avis direct</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : un outil en une colonne — entrée en haut, résultats en cartes, mode d'emploi en bas */
+:root {
+  --bg: #f3f5f2;
+  --surface: #ffffff;
+  --fg: #17201c;
+  --muted: #5d6a63;
+  --line: #d9e0db;
+  --accent: #0f6b52;
+  --accent-fg: #ffffff;
+  --star: #f2a900;
+  --star-soft: #fff4d6;
+  --warn: #a4471c;
+  --warn-soft: #fbe9df;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111613; --surface: #1a211d; --fg: #e8eee9; --muted: #9aa8a0; --line: #2c3631;
+    --accent: #3fbf93; --accent-fg: #07130e; --star: #ffc53d; --star-soft: #2e2711;
+    --warn: #f0956a; --warn-soft: #34201a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111613; --surface: #1a211d; --fg: #e8eee9; --muted: #9aa8a0; --line: #2c3631;
+  --accent: #3fbf93; --accent-fg: #07130e; --star: #ffc53d; --star-soft: #2e2711;
+  --warn: #f0956a; --warn-soft: #34201a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-direction: column; gap: 8px; }
+.stars { color: var(--star); letter-spacing: 3px; font-size: 18px; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 6vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+.lede { color: var(--muted); margin: 0; max-width: 60ch; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; margin: 0; }
+label.lab { font-weight: 600; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.input-zone { display: flex; flex-direction: column; gap: 10px; }
+textarea {
+  width: 100%; min-height: 96px; resize: vertical;
+  font-family: var(--font-mono); font-size: 13px; line-height: 1.5;
+  padding: 14px; border-radius: 10px; border: 1.5px solid var(--line);
+  background: var(--surface); color: var(--fg);
+}
+textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--star); outline-offset: 2px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+button {
+  font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px;
+  padding: 10px 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--fg);
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+button:hover { filter: brightness(0.96); }
+.msg { padding: 12px 14px; border-radius: 10px; font-size: 15px; }
+.msg.err { background: var(--warn-soft); color: var(--warn); }
+.place { display: flex; flex-direction: column; gap: 2px; }
+.place .name { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.15; }
+.place .ids { font-family: var(--font-mono); font-size: 12px; color: var(--muted); word-break: break-all; }
+.results { display: flex; flex-direction: column; gap: 14px; }
+.link-card {
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px;
+  padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0;
+}
+.link-card.best { border-color: var(--star); box-shadow: 0 0 0 3px var(--star-soft); }
+.link-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.link-head strong { font-size: 17px; }
+.chip { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--star-soft); color: var(--fg); border: 1px solid var(--star); }
+.chip.plain { background: transparent; border-color: var(--line); color: var(--muted); }
+.link-card p { margin: 0; color: var(--muted); font-size: 14px; }
+.url {
+  font-family: var(--font-mono); font-size: 13px; word-break: break-all;
+  background: var(--bg); border-radius: 8px; padding: 10px 12px; user-select: all;
+}
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.actions a { font-weight: 600; color: var(--accent); padding: 10px 4px; }
+.qr-zone { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+#qr { background: #fff; padding: 10px; border-radius: 8px; line-height: 0; }
+#qr img, #qr canvas { width: 150px; height: 150px; }
+.qr-zone p { margin: 0; color: var(--muted); font-size: 14px; max-width: 36ch; }
+details { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+summary { cursor: pointer; font-weight: 600; }
+ol { margin: 12px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--bg); padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) { .toast { transition: opacity .2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="stars" aria-hidden="true">★★★★★</div>
+    <h1>Lien d'avis direct</h1>
+    <p class="lede">Colle le lien Google Maps d'un commerce. Tu obtiens le lien qui ouvre directement la fenêtre « Écrire un avis », prêt à mettre sur une carte NFC ou un QR code.</p>
+  </header>
+
+  <section class="input-zone">
+    <label class="lab" for="src">Lien Google Maps du commerce</label>
+    <textarea id="src" spellcheck="false" placeholder="https://www.google.com/maps/place/…"></textarea>
+    <div class="row">
+      <button class="primary" id="go" type="button">Créer le lien d'avis</button>
+      <button id="paste-ex" type="button">Exemple : Indiana Factory Paris 14</button>
+    </div>
+    <div class="msg err" id="err" hidden></div>
+  </section>
+
+  <section class="results" id="out" hidden>
+    <div class="place">
+      <span class="name" id="pname"></span>
+      <span class="ids" id="pids"></span>
+    </div>
+
+    <div class="link-card best">
+      <div class="link-head"><strong>Lien pour la carte NFC</strong><span class="chip">Recommandé</span></div>
+      <p>Ouvre l'appli Google Maps directement sur l'écriture d'un avis (testé sur iPhone).</p>
+      <div class="url" id="u-maps"></div>
+      <div class="actions">
+        <button type="button" data-copy="u-maps">Copier</button>
+        <a id="a-maps" href="#" target="_blank" rel="noopener">Tester ↗</a>
+      </div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-head"><strong>Lien g.page</strong><span class="chip plain">Plus court</span></div>
+      <p>Même format que le lien donné au gérant par Google. Pratique pour un QR code ou un message.</p>
+      <div class="url" id="u-gpage"></div>
+      <div class="actions">
+        <button type="button" data-copy="u-gpage">Copier</button>
+        <a id="a-gpage" href="#" target="_blank" rel="noopener">Tester ↗</a>
+      </div>
+    </div>
+
+    <div class="link-card">
+      <div class="link-head"><strong>QR code de secours</strong></div>
+      <div class="qr-zone">
+        <div id="qr" aria-label="QR code du lien d'avis"></div>
+        <p>Pour les téléphones sans NFC. Fais un clic droit (ou un appui long) sur l'image pour l'enregistrer et l'ajouter au design de la carte.</p>
+      </div>
+    </div>
+
+    <details>
+      <summary>Autres infos (Place ID, lien navigateur)</summary>
+      <ol>
+        <li>Place ID : <code id="u-pid"></code></li>
+        <li>Lien navigateur : <code id="u-wr"></code></li>
+      </ol>
+    </details>
+  </section>
+
+  <details open>
+    <summary>Comment récupérer le bon lien Maps</summary>
+    <ol>
+      <li>Dans Google Maps, ouvre la fiche du commerce, puis <strong>Partager</strong> → <strong>Copier le lien</strong>.</li>
+      <li>Si tu obtiens un lien court (<code>maps.app.goo.gl/…</code>), ouvre-le sur un ordinateur, attends que la carte s'affiche, puis copie le long lien de la barre d'adresse.</li>
+      <li>Sur téléphone : dans Safari ou Chrome (pas l'appli Maps), va sur <code>google.com/maps</code>, cherche le magasin, touche sa fiche, puis copie l'adresse de la page dans la barre du haut.</li>
+      <li>Colle ce long lien ci-dessus. Il doit contenir un code du type <code>0x47e6…:0x1078…</code>.</li>
+    </ol>
+  </details>
+
+  <details>
+    <summary>Programmer la carte avec NFC Tools</summary>
+    <ol>
+      <li>Envoie-toi le lien par message et appuie dessus : vérifie que la fenêtre d'avis s'ouvre sur le bon commerce.</li>
+      <li>Dans NFC Tools : <strong>Écrire</strong> → <strong>Ajouter un enregistrement</strong> → <strong>URL / URI</strong>, colle le lien.</li>
+      <li>Appuie sur <strong>Écrire</strong> et approche la carte du téléphone.</li>
+      <li>Teste la carte, puis verrouille-la (<strong>Autres</strong> → <strong>Verrouiller le tag</strong>). Le verrouillage est définitif.</li>
+    </ol>
+  </details>
+</div>
+
+<div class="toast" id="toast" hidden>Copié</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const EXAMPLE = "https://www.google.com/maps/place/INDIANA+FACTORY+-+PARIS+14/@48.8329512,2.3206992,572m/data=!3m2!1e3!4b1!4m6!3m5!1s0x47e6713e9afa519f:0x10785f894ff84b20!8m2!3d48.8329512!4d2.3206992!16s%2Fg%2F11nr32b908";
+
+function le64(n) {
+  const out = [];
+  for (let i = 0; i < 8; i++) { out.push(Number(n & 0xffn)); n >>= 8n; }
+  return out;
+}
+function fromLe64(bytes) {
+  let n = 0n;
+  for (let i = 7; i >= 0; i--) n = (n << 8n) | BigInt(bytes[i]);
+  return n;
+}
+function b64url(bytes) {
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64url(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  return Array.from(atob(s), c => c.charCodeAt(0));
+}
+function hex(n) { return "0x" + n.toString(16); }
+
+// Lit un lien Maps, un code 0x…:0x… ou un Place ID ChIJ…
+function parse(text) {
+  text = text.trim();
+  if (!text) throw new Error("Colle d'abord le lien Google Maps du commerce.");
+  let decoded = text;
+  try { decoded = decodeURIComponent(text); } catch (e) {}
+  const m = decoded.match(/0x([0-9a-f]{1,16}):0x([0-9a-f]{1,16})/i);
+  let name = "";
+  const nm = decoded.match(/\/maps\/place\/([^\/@]+)/);
+  if (nm) name = nm[1].replace(/\+/g, " ");
+  if (m) return { fid: BigInt("0x" + m[1]), cid: BigInt("0x" + m[2]), name };
+  const p = decoded.match(/ChIJ[A-Za-z0-9_-]{20,}/);
+  if (p) {
+    const b = unb64url(p[0]);
+    if (b.length >= 20 && b[2] === 0x09 && b[11] === 0x11) {
+      return { fid: fromLe64(b.slice(3, 11)), cid: fromLe64(b.slice(12, 20)), name };
+    }
+    throw new Error("Ce Place ID n'est pas d'un format reconnu. Colle plutôt le long lien Google Maps.");
+  }
+  if (/maps\.app\.goo\.gl|goo\.gl\/maps/i.test(decoded)) {
+    throw new Error("C'est un lien court. Ouvre-le sur un ordinateur, attends que la carte s'affiche, puis copie le long lien de la barre d'adresse et colle-le ici.");
+  }
+  throw new Error("Je ne trouve pas le code du commerce dans ce lien. Il doit contenir un passage du type 0x47e6…:0x1078…. Ouvre la fiche du commerce dans Google Maps (pas une recherche) et copie le lien de la barre d'adresse.");
+}
+
+function build({ fid, cid }) {
+  const code = hex(fid) + ":" + hex(cid);
+  const gpage = "https://g.page/r/" + b64url([0x09, ...le64(cid), 0x10, 0x01]) + "/review";
+  const placeId = b64url([0x0a, 0x12, 0x09, ...le64(fid), 0x11, ...le64(cid)]);
+  return {
+    code,
+    maps: "https://www.google.com/maps/place//data=!4m3!3m2!1s" + code + "!12e1",
+    gpage,
+    placeId,
+    writereview: "https://search.google.com/local/writereview?placeid=" + placeId
+  };
+}
+
+const $ = id => document.getElementById(id);
+
+const SHORT = /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)\/[A-Za-z0-9_\/-]+/i;
+
+// Avec le serveur (FastAPI), les liens courts sont ouverts côté serveur
+async function expand(text) {
+  const m = text.match(SHORT);
+  if (!m || /0x[0-9a-f]+:0x[0-9a-f]+/i.test(text)) return text;
+  try {
+    const res = await fetch("api/resolve?url=" + encodeURIComponent(m[0]));
+    if (!res.ok) return text;
+    const data = await res.json();
+    return data.url || text;
+  } catch (e) { return text; }
+}
+
+let runId = 0;
+async function run() {
+  const id = ++runId;
+  $("err").hidden = true;
+  try {
+    const text = await expand($("src").value);
+    if (id !== runId) return;
+    const info = parse(text);
+    const r = build(info);
+    $("pname").textContent = info.name || "Commerce trouvé";
+    $("pids").textContent = r.code;
+    $("u-maps").textContent = r.maps; $("a-maps").href = r.maps;
+    $("u-gpage").textContent = r.gpage; $("a-gpage").href = r.gpage;
+    $("u-pid").textContent = r.placeId;
+    $("u-wr").textContent = r.writereview;
+    const qr = $("qr"); qr.textContent = "";
+    if (window.QRCode) new QRCode(qr, { text: r.gpage, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M });
+    else qr.textContent = "QR indisponible";
+    $("out").hidden = false;
+  } catch (e) {
+    $("out").hidden = true;
+    $("err").textContent = e.message;
+    $("err").hidden = false;
+  }
+}
+
+let toastTimer;
+function toast(t) {
+  const el = $("toast"); el.textContent = t; el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.hidden = true, 1600);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]");
+  if (!b) return;
+  const el = $(b.dataset.copy);
+  const done = () => toast("Lien copié");
+  const fallback = () => {
+    const r = document.createRange(); r.selectNodeContents(el);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast("Lien sélectionné : fais Copier");
+  };
+  try { navigator.clipboard.writeText(el.textContent).then(done, fallback); } catch (err) { fallback(); }
+});
+
+$("go").addEventListener("click", run);
+$("src").addEventListener("input", () => { if ($("src").value.trim()) run(); });
+$("paste-ex").addEventListener("click", () => { $("src").value = EXAMPLE; run(); });
+
+$("src").value = EXAMPLE;
+run();
+</script>
